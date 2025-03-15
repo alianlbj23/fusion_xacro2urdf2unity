@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import urllib.request
 import subprocess
@@ -50,9 +51,31 @@ def main():
     if os.path.exists("meshes"):
         shutil.copytree("meshes", urdf_mesh_dir, dirs_exist_ok=True)
 
-    # Run xacro.py to generate the URDF file
+    # Create a temporary xacro file omitting any .gazebo includes.
+    temp_xacro_file = xacro_file + ".temp"
+    with open(xacro_file, "r", encoding="utf-8") as f:
+        content = f.read()
+    # Replace any xacro include line that references a .gazebo file with a comment.
+    content = re.sub(r'<xacro:include\b[^>]*\.gazebo[^>]*>', '<!-- omitted .gazebo include -->', content)
+    with open(temp_xacro_file, "w", encoding="utf-8") as f:
+        f.write(content)
+
+    # Run xacro.py to generate the URDF file using the temporary file
     urdf_output = f"{robot_name}.urdf"
-    subprocess.run(["python", xacro_script, "-o", urdf_output, xacro_file])
+    subprocess.run(["python", xacro_script, "-o", urdf_output, temp_xacro_file])
+
+    # Optionally, remove the temporary file after processing.
+    os.remove(temp_xacro_file)
+
+    # --- Update URDF mesh file references ---
+    # Convert any file:// absolute paths to use package://<robot_mesh>/meshes/...
+    with open(urdf_output, "r", encoding="utf-8") as f:
+        urdf_data = f.read()
+    # This regex will replace the substring starting with 'file://' up to '/meshes'
+    urdf_data = re.sub(r'file://.*?[/\\]meshes', f'package://{robot_mesh}/meshes', urdf_data)
+    with open(urdf_output, "w", encoding="utf-8") as f:
+        f.write(urdf_data)
+    # --- End Update ---
 
     # Overwrite output directory if it exists
     output_dir = f"{robot_name}_to_unity"
