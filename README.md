@@ -4,9 +4,9 @@ This repository is cited from [xacro2urdf](https://github.com/doctorsrn/xacro2ur
 # Usage
 1. Prepare Your Folder:
 The folder you specify must contain:
-- A `urdf` folder with the necessary URDF files and xacro file.
-- A `meshes` folder with the associated mesh files.
-- A `launch` folder if you have launch files to run.
+    - A `urdf` folder with the necessary URDF files and xacro file.
+    - A `meshes` folder with the associated mesh files.
+    - A `launch` folder if you have launch files to run.
 
 2. Running the Script:
 You have two choices to transform your files:
