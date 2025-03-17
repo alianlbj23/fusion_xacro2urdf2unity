@@ -4,6 +4,7 @@ import shutil
 import urllib.request
 import subprocess
 import argparse
+import sys
 
 def main():
     parser = argparse.ArgumentParser(
@@ -22,9 +23,8 @@ def main():
 
     # Check if the urdf folder exists
     if not os.path.exists("urdf"):
-        print("Error, the 'urdf' folder doesn't exist. Please place this script into the same folder as the 'urdf' folder.")
-        input("Press Enter to exit...")
-        return
+        sys.stderr.write("Error, the 'urdf' folder doesn't exist. Please place this script into the same folder as the 'urdf' folder.\n")
+        sys.exit(1)
 
     # Get the parent directory name (xxx_description)
     robot_mesh = os.path.basename(os.getcwd())
@@ -35,9 +35,8 @@ def main():
     # Check if the urdf/<robot_name>.xacro file exists
     xacro_file = os.path.join("urdf", f"{robot_name}.xacro")
     if not os.path.exists(xacro_file):
-        print(f"Error, the '{xacro_file}' file doesn't exist.")
-        input("Press Enter to exit...")
-        return
+        sys.stderr.write(f"Error, the '{xacro_file}' file doesn't exist.\n")
+        sys.exit(1)
 
     # Download xacro.py only if it doesn't exist
     xacro_script = "xacro.py"
@@ -87,7 +86,6 @@ def main():
     shutil.move(os.path.join("urdf", robot_mesh), output_dir)
 
     print(f"Success. Your files are ready in the folder '{output_dir}'.")
-    input("Press Enter to exit...")
 
 if __name__ == "__main__":
     main()
