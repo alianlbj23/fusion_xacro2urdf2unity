@@ -54,8 +54,11 @@ def patch_xacro_for_minidom_compat(xacro_path: str) -> None:
         "_write_data_compat(writer, attrs[a_name].value, None)"
     )
 
-    with open(xacro_path, "w", encoding="utf-8") as f:
-        f.write(patched)
+    try:
+        with open(xacro_path, "w", encoding="utf-8") as f:
+            f.write(patched)
+    except OSError as e:
+        raise OSError(f"Failed to write patched xacro file '{xacro_path}': {e}") from e
 
 
 def main():
