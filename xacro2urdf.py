@@ -160,9 +160,27 @@ def main():
 
     os.makedirs(output_dir, exist_ok=True)
 
-    shutil.move(urdf_output, output_dir)
-    shutil.move(os.path.join("urdf", robot_mesh), output_dir)
+    urdf_dest = os.path.join(output_dir, os.path.basename(urdf_output))
+    mesh_src = os.path.join("urdf", robot_mesh)
+    mesh_dest = os.path.join(output_dir, robot_mesh)
 
+    try:
+        shutil.move(urdf_output, output_dir)
+        shutil.move(mesh_src, output_dir)
+    except OSError as exc:
+        # Best-effort rollback to avoid leaving a partially moved state
+        try:
+            if os.path.exists(urdf_dest) and not os.path.exists(urdf_output):
+                shutil.move(urdf_dest, urdf_output)
+        except OSError:
+            pass
+        try:
+            if os.path.exists(mesh_dest) and not os.path.exists(mesh_src):
+                shutil.move(mesh_dest, mesh_src)
+        except OSError:
+            pass
+        print(f"❌ Error while moving generated files: {exc}", file=sys.stderr)
+        raise
     print(f"✅ Success. Files are ready in '{output_dir}'.")
 
 
