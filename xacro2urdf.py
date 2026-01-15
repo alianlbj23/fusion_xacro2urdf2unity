@@ -15,7 +15,8 @@ def patch_xacro_for_minidom_compat(xacro_path: str) -> None:
     try:
         with open(xacro_path, "r", encoding="utf-8") as f:
             src = f.read()
-    except OSError:
+    except OSError as e:
+        print(f"Warning: failed to read '{xacro_path}' for minidom compatibility patch: {e}", file=sys.stderr)
         return
 
     # 已 patch 過就不再動
