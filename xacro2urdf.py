@@ -39,10 +39,15 @@ def patch_xacro_for_minidom_compat(xacro_path: str) -> None:
 
     lines = src.splitlines(True)
     insert_at = 0
-    for i, line in enumerate(lines[:100]):
+    for i, line in enumerate(lines):
         if line.startswith("import ") or line.startswith("from "):
             insert_at = i + 1
 
+    if insert_at == 0 and lines:
+        # Avoid inserting before shebang or encoding declaration if present
+        first_line = lines[0]
+        if first_line.startswith("#!") or "coding" in first_line:
+            insert_at = 1
     patched = (
         "".join(lines[:insert_at])
         + "\n"
